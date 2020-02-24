@@ -8,6 +8,17 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    let mut results = Vec::new();
+    for line in contents.lines() {
+        if line.contains(query) {
+            results.push(line);
+        }
+    }
+
+    results
+}
+
 pub struct Config {
     pub query: String,
     pub filename: String
@@ -64,5 +75,21 @@ mod tests {
         // assert
         assert_eq!(query, &result.query);
         assert_eq!(filename, &result.filename);
+    }
+
+    #[test]
+    fn one_result() {
+        // arrange
+        let query = "duct";
+        let contents = "\
+Rust:
+safe, fast, productive.
+Pick tree";
+        
+        // act
+        let result = search(query, contents);
+
+        // assert
+        assert_eq!(vec!["safe, fast, productive."], result);
     }
 }
