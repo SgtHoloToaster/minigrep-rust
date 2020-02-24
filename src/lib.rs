@@ -24,3 +24,45 @@ impl Config {
         Ok(Config { query, filename })
     } 
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[should_panic(expected = "not enough arguments")]
+    fn less_than_3_arguments_provided() {
+        // arrange
+        let args: [String; 2] = [String::from("first"), String::from("second")];
+
+        // act & assert
+        Config::new(&args).unwrap();
+    }
+
+    #[test]
+    fn can_create() {
+        // arrange
+        let args: [String; 3] = [String::default(), String::default(), String::default()];
+
+        // act
+        let result = Config::new(&args);
+
+        // assert
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn created_config_has_correct_properties() {
+        // arrange
+        let args: [String; 3] = [String::from("ignore"), String::from("someQuery"), String::from("someFile.txt")];
+        let query = &args[1];
+        let filename = &args[2];
+        
+        // act 
+        let result = Config::new(&args).unwrap();
+
+        // assert
+        assert_eq!(query, &result.query);
+        assert_eq!(filename, &result.filename);
+    }
+}
