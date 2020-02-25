@@ -80,18 +80,36 @@ mod tests {
     }
 
     #[test]
-    fn one_result() {
+    fn case_sensitive() {
         // arrange
         let query = "duct";
         let contents = "\
 Rust:
 safe, fast, productive.
-Pick tree";
+Pick tree.
+Duct tape.";
         
         // act
         let result = search(query, contents);
 
         // assert
         assert_eq!(vec!["safe, fast, productive."], result);
+    }
+
+    #[test]
+    fn case_insensitive() {
+        // arrange
+        let query = "rUsT";
+        let contents = "\
+Rust:
+safe, fast, productive.
+Pick tree.
+Trust me.";
+
+        // act
+        let result = search_case_insensitive(&query, &contents);
+
+        // assert
+        assert_eq!(vec!["Rust:", "Trust me."], result)
     }
 }
