@@ -1,9 +1,16 @@
 use std::fs;
 use std::error::Error;
+use std::env;
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.filename)?;
-    for line in search(&config.query, &contents) {
+    let search_result = if config.case_sensitive {
+        search(&config.query, &contents)
+    } else {
+        search_case_insensitive(&config.query, &contents)
+    };
+
+    for line in search_result {
         println!("{}", line);
     }
     
@@ -35,7 +42,8 @@ pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a st
 
 pub struct Config {
     pub query: String,
-    pub filename: String
+    pub filename: String,
+    pub case_sensitive: bool
 }
 
 impl Config {
@@ -46,7 +54,8 @@ impl Config {
 
         let query = args[1].clone();
         let filename = args[2].clone();
-        Ok(Config { query, filename })
+        let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
+        Ok(Config { query, filename, case_sensitive })
     } 
 }
 
