@@ -47,7 +47,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new (mut args: std::env::Args) -> Result<Config, &'static str> {
+    pub fn new (mut args: impl Iterator<Item=String>) -> Result<Config, &'static str> {
         args.next();
         let query = match args.next() {
             Some(q) => q,
@@ -58,7 +58,7 @@ impl Config {
             Some(f) => f,
             None => return Err("Didn't get a filename string")
         };
-        
+
         let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
         Ok(Config { query, filename, case_sensitive })
     } 
@@ -72,19 +72,19 @@ mod tests {
     #[should_panic(expected = "not enough arguments")]
     fn less_than_3_arguments_provided() {
         // arrange
-        let args: [String; 2] = [String::from("first"), String::from("second")];
+        let args =  vec![String::from("first"), String::from("second")].into_iter();
 
         // act & assert
-        Config::new(&args).unwrap();
+        Config::new(args).unwrap();
     }
 
     #[test]
     fn can_create() {
         // arrange
-        let args: [String; 3] = [String::default(), String::default(), String::default()];
+        let args = vec![String::default(), String::default(), String::default()].into_iter();
 
         // act
-        let result = Config::new(&args);
+        let result = Config::new(args);
 
         // assert
         assert!(result.is_ok());
@@ -93,16 +93,16 @@ mod tests {
     #[test]
     fn created_config_has_correct_properties() {
         // arrange
-        let args: [String; 3] = [String::from("ignore"), String::from("someQuery"), String::from("someFile.txt")];
-        let query = &args[1];
-        let filename = &args[2];
+        let query = String::from("someQuery");
+        let filename = String::from("someFile.txt");
+        let args = vec![String::from("ignore"), query.clone(), filename.clone()].into_iter();
         
         // act 
-        let result = Config::new(&args).unwrap();
+        let result = Config::new(args).unwrap();
 
         // assert
-        assert_eq!(query, &result.query);
-        assert_eq!(filename, &result.filename);
+        assert_eq!(query, result.query);
+        assert_eq!(filename, result.filename);
     }
 
     #[test]
