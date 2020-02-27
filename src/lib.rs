@@ -51,12 +51,12 @@ impl Config {
         args.next();
         let query = match args.next() {
             Some(q) => q,
-            None => return Err("Didn't get a query string")
+            None => return Err("Did not get a query string")
         };
 
         let filename = match args.next() {
             Some(f) => f,
-            None => return Err("Didn't get a filename string")
+            None => return Err("Did not get a filename string")
         };
 
         let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
@@ -69,8 +69,18 @@ mod tests {
     use super::*;
 
     #[test]
-    #[should_panic(expected = "not enough arguments")]
-    fn less_than_3_arguments_provided() {
+    #[should_panic(expected = "Did not get a query string")]
+    fn query_is_not_provided() {
+        // arrange
+        let args =  vec![String::from("first")].into_iter();
+
+        // act & assert
+        Config::new(args).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "Did not get a filename string")]
+    fn filename_is_not_provided() {
         // arrange
         let args =  vec![String::from("first"), String::from("second")].into_iter();
 
